@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="现代浏览器兼容性与特性全面测试工具 - 严格遵循 W3C 标准">
+  <title>现代浏览器测试工具 · Modern Browser Test Suite</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-hover: #242836;
+      --border: #2e3345;
+      --text: #e6e8ef;
+      --text-muted: #9aa3b5;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,.35);
+      --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f6fb;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f2f8;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --shadow: 0 4px 20px rgba(0,0,0,.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .subtitle {
+      font-size: .875rem;
+      color: var(--text-muted);
+      margin-top: .15rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: .875rem;
+      font-weight: 500;
+      padding: .55rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    button:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Summary Cards */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card {
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: .4rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-label {
+      font-size: .8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .score-ring {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto .5rem;
+      position: relative;
+    }
+
+    .score-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .score-ring circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .score-ring .bg { stroke: var(--border); }
+    .score-ring .fg {
+      stroke: var(--success);
+      stroke-linecap: round;
+      transition: stroke-dashoffset .8s ease;
+    }
+
+    .score-text {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: .4rem;
+      overflow-x: auto;
+      padding-bottom: .5rem;
+      margin-bottom: 1.5rem;
+      scrollbar-width: thin;
+    }
+
+    .tab {
+      flex-shrink: 0;
+      padding: .55rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: .875rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .tab:hover { color: var(--text); border-color: var(--accent); }
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Sections */
+    .section {
+      display: none;
+      animation: fadeIn .35s ease;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    th, td {
+      padding: .75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--bg-hover);
+      font-weight: 600;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      color: var(--text-muted);
+      position: sticky;
+      top: 0;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-hover); }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-weight: 500;
+      font-size: .85rem;
+      padding: .2rem .55rem;
+      border-radius: 6px;
+    }
+
+    .status.pass {
+      background: color-mix(in srgb, var(--success) 18%, transparent);
+      color: var(--success);
+    }
+
+    .status.fail {
+      background: color-mix(in srgb, var(--danger) 18%, transparent);
+      color: var(--danger);
+    }
+
+    .status.partial {
+      background: color-mix(in srgb, var(--warning) 18%, transparent);
+      color: var(--warning);
+    }
+
+    .status.info {
+      background: color-mix(in srgb, var(--info) 18%, transparent);
+      color: var(--info);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: .75rem;
+      padding: .15rem .45rem;
+      border-radius: 4px;
+      background: var(--bg-hover);
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    .value-mono {
+      font-family: var(--mono);
+      font-size: .85rem;
+      word-break: break-all;
+    }
+
+    /* Grid for feature cards */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      transition: border-color .2s;
+    }
+
+    .feature-card:hover { border-color: var(--accent); }
+
+    .feature-name {
+      font-weight: 500;
+      font-size: .9rem;
+    }
+
+    .feature-desc {
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-top: .15rem;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: .5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #a855f7);
+      border-radius: 3px;
+      transition: width .6s ease;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: .75rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      font-size: .9rem;
+      opacity: 0;
+      transition: all .3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      h1 { font-size: 1.25rem; }
+      .summary { grid-template-columns: 1fr 1fr; }
+      th, td { padding: .6rem .75rem; }
+    }
+
+    /* Print */
+    @media print {
+      body { background: #fff; color: #000; }
+      .header-actions, .tabs, button { display: none !important; }
+      .section { display: block !important; page-break-inside: avoid; }
+      .card, .table-wrap, .feature-card { box-shadow: none; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">⚡</div>
+        <div>
+          <h1>现代浏览器测试工具</h1>
+          <p class="subtitle">W3C 标准 · 全面特性检测 · 纯前端实现</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="btn-theme" aria-label="切换主题">🌙 主题</button>
+        <button type="button" id="btn-copy" class="primary">📋 复制报告</button>
+        <button type="button" id="btn-export">⬇️ 导出 JSON</button>
+        <button type="button" id="btn-refresh">🔄 重新检测</button>
+      </div>
+    </header>
+
+    <!-- Summary -->
+    <section class="summary" aria-label="概览">
+      <div class="card summary-card">
+        <div class="score-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle class="bg" cx="40" cy="40" r="34"></circle>
+            <circle class="fg" id="score-circle" cx="40" cy="40" r="34"
+                    stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+          </svg>
+          <div class="score-text" id="score-text">--</div>
+        </div>
+        <div class="summary-label">综合支持率</div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-value" id="browser-name">--</div>
+        <div class="summary-label">浏览器</div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-value" id="os-name">--</div>
+        <div class="summary-label">操作系统</div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-value" id="pass-count">--</div>
+        <div class="summary-label">通过 / 总计</div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist" aria-label="测试分类">
+      <button type="button" class="tab active" role="tab" data-tab="info" aria-selected="true">浏览器信息</button>
+      <button type="button" class="tab" role="tab" data-tab="display">显示与硬件</button>
+      <button type="button" class="tab" role="tab" data-tab="html">HTML5</button>
+      <button type="button" class="tab" role="tab" data-tab="css">CSS</button>
+      <button type="button" class="tab" role="tab" data-tab="js">JavaScript</button>
+      <button type="button" class="tab" role="tab" data-tab="api">Web APIs</button>
+      <button type="button" class="tab" role="tab" data-tab="storage">存储</button>
+      <button type="button" class="tab" role="tab" data-tab="media">媒体</button>
+      <button type="button" class="tab" role="tab" data-tab="network">网络</button>
+      <button type="button" class="tab" role="tab" data-tab="security">安全</button>
+      <button type="button" class="tab" role="tab" data-tab="perf">性能</button>
+    </nav>
+
+    <!-- Sections -->
+    <div id="sections">
+      <!-- Browser Info -->
+      <section class="section active" id="sec-info" role="tabpanel">
+        <h2 class="section-title">🖥️ 浏览器与环境信息</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>项目</th><th>值</th></tr></thead>
+            <tbody id="tbody-info"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Display -->
+      <section class="section" id="sec-display" role="tabpanel">
+        <h2 class="section-title">📱 显示与硬件</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>项目</th><th>值</th></tr></thead>
+            <tbody id="tbody-display"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- HTML5 -->
+      <section class="section" id="sec-html" role="tabpanel">
+        <h2 class="section-title">📄 HTML5 特性</h2>
+        <div class="feature-grid" id="grid-html"></div>
+      </section>
+
+      <!-- CSS -->
+      <section class="section" id="sec-css" role="tabpanel">
+        <h2 class="section-title">🎨 CSS 特性</h2>
+        <div class="feature-grid" id="grid-css"></div>
+      </section>
+
+      <!-- JS -->
+      <section class="section" id="sec-js" role="tabpanel">
+        <h2 class="section-title">⚙️ JavaScript / ECMAScript</h2>
+        <div class="feature-grid" id="grid-js"></div>
+      </section>
+
+      <!-- Web APIs -->
+      <section class="section" id="sec-api" role="tabpanel">
+        <h2 class="section-title">🔌 Web APIs</h2>
+        <div class="feature-grid" id="grid-api"></div>
+      </section>
+
+      <!-- Storage -->
+      <section class="section" id="sec-storage" role="tabpanel">
+        <h2 class="section-title">💾 存储能力</h2>
+        <div class="feature-grid" id="grid-storage"></div>
+      </section>
+
+      <!-- Media -->
+      <section class="section" id="sec-media" role="tabpanel">
+        <h2 class="section-title">🎬 媒体与设备</h2>
+        <div class="feature-grid" id="grid-media"></div>
+      </section>
+
+      <!-- Network -->
+      <section class="section" id="sec-network" role="tabpanel">
+        <h2 class="section-title">🌐 网络信息</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>项目</th><th>值</th></tr></thead>
+            <tbody id="tbody-network"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section class="section" id="sec-security" role="tabpanel">
+        <h2 class="section-title">🔒 安全与隐私</h2>
+        <div class="feature-grid" id="grid-security"></div>
+      </section>
+
+      <!-- Performance -->
+      <section class="section" id="sec-perf" role="tabpanel">
+        <h2 class="section-title">⏱️ 性能相关</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>项目</th><th>值</th></tr></thead>
+            <tbody id="tbody-perf"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p>纯 HTML + CSS + JS 实现 · 严格遵循 W3C 标准 · 无第三方依赖 · 数据仅在本地处理</p>
+      <p style="margin-top:.4rem">检测时间：<span id="detect-time"></span></p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    /* ==================== 工具函数 ==================== */
+    const $ = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+    function showToast(msg) {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function statusBadge(ok, partial = false) {
+      if (ok === true) return '<span class="status pass">✓ 支持</span>';
+      if (ok === 'partial' || partial) return '<span class="status partial">△ 部分</span>';
+      return '<span class="status fail">✗ 不支持</span>';
+    }
+
+    function infoBadge(text) {
+      return `<span class="status info">${text}</span>`;
+    }
+
+    /* ==================== 浏览器识别 ==================== */
+    function detectBrowser() {
+      const ua = navigator.userAgent;
+      let name = 'Unknown', version = '', engine = '';
+
+      if (/Edg\/(\d+)/.test(ua)) {
+        name = 'Microsoft Edge'; version = RegExp.$1; engine = 'Blink';
+      } else if (/Chrome\/(\d+)/.test(ua) && !/Edg|OPR|Brave/.test(ua)) {
+        name = 'Google Chrome'; version = RegExp.$1; engine = 'Blink';
+      } else if (/Firefox\/(\d+)/.test(ua)) {
+        name = 'Mozilla Firefox'; version = RegExp.$1; engine = 'Gecko';
+      } else if (/Safari\/(\d+)/.test(ua) && !/Chrome|Chromium/.test(ua)) {
+        name = 'Apple Safari'; version = (ua.match(/Version\/(\d+)/) || [])[1] || ''; engine = 'WebKit';
+      } else if (/OPR\/(\d+)/.test(ua)) {
+        name = 'Opera'; version = RegExp.$1; engine = 'Blink';
+      } else if (/Brave/.test(ua)) {
+        name = 'Brave'; version = (ua.match(/Chrome\/(\d+)/) || [])[1] || ''; engine = 'Blink';
+      }
+
+      let os = 'Unknown';
+      if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
+      else if (/Windows NT 6\.3/.test(ua)) os = 'Windows 8.1';
+      else if (/Windows NT 6\.1/.test(ua)) os = 'Windows 7';
+      else if (/Mac OS X ([\d_]+)/.test(ua)) os = 'macOS ' + RegExp.$1.replace(/_/g, '.');
+      else if (/Android ([\d.]+)/.test(ua)) os = 'Android ' + RegExp.$1;
+      else if (/iPhone|iPad|iPod/.test(ua)) os = 'iOS/iPadOS';
+      else if (/Linux/.test(ua)) os = 'Linux';
+      else if (/CrOS/.test(ua)) os = 'Chrome OS';
+
+      return { name, version, engine, os, ua };
+    }
+
+    /* ==================== 特性检测集合 ==================== */
+    const tests = {
+      // HTML5
+      html: [
+        { name: 'Canvas 2D', test: () => !!document.createElement('canvas').getContext },
+        { name: 'Canvas WebGL', test: () => {
+          try {
+            const c = document.createElement('canvas');
+            return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
+          } catch { return false; }
+        }},
+        { name: 'WebGL 2', test: () => {
+          try { return !!document.createElement('canvas').getContext('webgl2'); }
+          catch { return false; }
+        }},
+        { name: 'SVG', test: () => !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect },
+        { name: 'Audio 元素', test: () => !!document.createElement('audio').canPlayType },
+        { name: 'Video 元素', test: () => !!document.createElement('video').canPlayType },
+        { name: '本地存储 localStorage', test: () => {
+          try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; }
+          catch { return false; }
+        }},
+        { name: '会话存储 sessionStorage', test: () => {
+          try { sessionStorage.setItem('__t', '1'); sessionStorage.removeItem('__t'); return true; }
+          catch { return false; }
+        }},
+        { name: 'Application Cache (已废弃)', test: () => 'applicationCache' in window },
+        { name: 'Web Workers', test: () => typeof Worker !== 'undefined' },
+        { name: 'Shared Workers', test: () => typeof SharedWorker !== 'undefined' },
+        { name: 'Server-Sent Events', test: () => typeof EventSource !== 'undefined' },
+        { name: 'WebSocket', test: () => typeof WebSocket !== 'undefined' },
+        { name: 'History API', test: () => !!(window.history && history.pushState) },
+        { name: 'Drag & Drop', test: () => 'draggable' in document.createElement('div') },
+        { name: 'File API', test: () => typeof FileReader !== 'undefined' },
+        { name: 'FormData', test: () => typeof FormData !== 'undefined' },
+        { name: 'Geolocation', test: () => 'geolocation' in navigator },
+        { name: 'WebSQL (已废弃)', test: () => !!window.openDatabase },
+        { name: 'IndexedDB', test: () => !!window.indexedDB },
+        { name: 'input type=date', test: () => {
+          const i = document.createElement('input'); i.type = 'date'; return i.type === 'date';
+        }},
+        { name: 'input type=color', test: () => {
+          const i = document.createElement('input'); i.type = 'color'; return i.type === 'color';
+        }},
+        { name: 'input type=range', test: () => {
+          const i = document.createElement('input'); i.type = 'range'; return i.type === 'range';
+        }},
+        { name: 'datalist', test: () => 'list' in document.createElement('input') },
+        { name: 'progress 元素', test: () => document.createElement('progress').max !== undefined },
+        { name: 'meter 元素', test: () => document.createElement('meter').max !== undefined },
+        { name: 'details / summary', test: () => 'open' in document.createElement('details') },
+        { name: 'template 元素', test: () => 'content' in document.createElement('template') },
+        { name: 'picture 元素', test: () => !!window.HTMLPictureElement },
+        { name: 'srcset', test: () => 'srcset' in document.createElement('img') },
+        { name: 'dialog 元素', test: () => typeof HTMLDialogElement === 'function' },
+      ],
+
+      // CSS
+      css: [
+        { name: 'Flexbox', test: () => CSS.supports('display', 'flex') },
+        { name: 'CSS Grid', test: () => CSS.supports('display', 'grid') },
+        { name: 'CSS Variables', test: () => CSS.supports('--a', '0') },
+        { name: 'CSS calc()', test: () => CSS.supports('width', 'calc(1px + 1px)') },
+        { name: 'CSS clamp()', test: () => CSS.supports('width', 'clamp(1px, 2px, 3px)') },
+        { name: 'CSS min() / max()', test: () => CSS.supports('width', 'min(1px, 2px)') },
+        { name: 'CSS :has()', test: () => CSS.supports('selector(:has(*))') },
+        { name: 'CSS :is() / :where()', test: () => CSS.supports('selector(:is(*))') },
+        { name: 'CSS Nesting', test: () => CSS.supports('selector(&)') },
+        { name: 'CSS Container Queries', test: () => CSS.supports('container-type', 'inline-size') },
+        { name: 'CSS Subgrid', test: () => CSS.supports('grid-template-columns', 'subgrid') },
+        { name: 'CSS aspect-ratio', test: () => CSS.supports('aspect-ratio', '1') },
+        { name: 'CSS gap (Flex)', test: () => CSS.supports('gap', '1px') },
+        { name: 'CSS logical properties', test: () => CSS.supports('margin-inline-start', '1px') },
+        { name: 'CSS scroll-snap', test: () => CSS.supports('scroll-snap-type', 'x mandatory') },
+        { name: 'CSS backdrop-filter', test: () => CSS.supports('backdrop-filter', 'blur(1px)') },
+        { name: 'CSS filter', test: () => CSS.supports('filter', 'blur(1px)') },
+        { name: 'CSS object-fit', test: () => CSS.supports('object-fit', 'cover') },
+        { name: 'CSS sticky', test: () => CSS.supports('position', 'sticky') },
+        { name: 'CSS position: sticky (table)', test: () => CSS.supports('position', 'sticky') },
+        { name: 'CSS @layer', test: () => {
+          try { return !!CSSLayerBlockRule || CSS.supports('@layer'); } catch { return false; }
+        }},
+        { name: 'CSS color-mix()', test: () => CSS.supports('color', 'color-mix(in srgb, red, blue)') },
+        { name: 'CSS oklch()', test: () => CSS.supports('color', 'oklch(0.5 0.1 0)') },
+        { name: 'CSS accent-color', test: () => CSS.supports('accent-color', 'red') },
+        { name: 'CSS content-visibility', test: () => CSS.supports('content-visibility', 'auto') },
+        { name: 'CSS overscroll-behavior', test: () => CSS.supports('overscroll-behavior', 'contain') },
+        { name: 'CSS touch-action', test: () => CSS.supports('touch-action', 'none') },
+        { name: 'CSS will-change', test: () => CSS.supports('will-change', 'transform') },
+        { name: 'CSS contain', test: () => CSS.supports('contain', 'layout') },
+        { name: 'CSS mask', test: () => CSS.supports('mask-image', 'none') || CSS.supports('-webkit-mask-image', 'none') },
+        { name: 'CSS clip-path', test: () => CSS.supports('clip-path', 'circle(50%)') },
+        { name: 'CSS shape-outside', test: () => CSS.supports('shape-outside', 'circle()') },
+        { name: 'CSS Houdini (Paint API)', test: () => 'paintWorklet' in CSS },
+        { name: 'CSS Houdini (Properties)', test: () => 'registerProperty' in CSS },
+        { name: 'Media Queries Level 4 (hover)', test: () => matchMedia('(hover: hover)').media !== 'not all' },
+        { name: 'prefers-color-scheme', test: () => matchMedia('(prefers-color-scheme: dark)').media !== 'not all' },
+        { name: 'prefers-reduced-motion', test: () => matchMedia('(prefers-reduced-motion: reduce)').media !== 'not all' },
+      ],
+
+      // JavaScript / ES
+      js: [
+        { name: 'ES6 Arrow Functions', test: () => { try { eval('(()=>{})'); return true; } catch { return false; } } },
+        { name: 'ES6 Classes', test: () => { try { eval('class A{}'); return true; } catch { return false; } } },
+        { name: 'ES6 let / const', test: () => { try { eval('let a; const b=1'); return true; } catch { return false; } } },
+        { name: 'ES6 Template Literals', test: () => { try { eval('`a`'); return true; } catch { return false; } } },
+        { name: 'ES6 Destructuring', test: () => { try { eval('let {a}=({a:1})'); return true; } catch { return false; } } },
+        { name: 'ES6 Spread / Rest', test: () => { try { eval('[...[1]]'); return true; } catch { return false; } } },
+        { name: 'ES6 Default Parameters', test: () => { try { eval('(function(a=1){})'); return true; } catch { return false; } } },
+        { name: 'ES6 Promises', test: () => typeof Promise !== 'undefined' },
+        { name: 'ES6 Symbols', test: () => typeof Symbol !== 'undefined' },
+        { name: 'ES6 Map / Set', test: () => typeof Map !== 'undefined' && typeof Set !== 'undefined' },
+        { name: 'ES6 WeakMap / WeakSet', test: () => typeof WeakMap !== 'undefined' },
+        { name: 'ES6 Proxy', test: () => typeof Proxy !== 'undefined' },
+        { name: 'ES6 Reflect', test: () => typeof Reflect !== 'undefined' },
+        { name: 'ES8 async/await', test: () => { try { eval('(async()=>{})'); return true; } catch { return false; } } },
+        { name: 'ES2018 Rest/Spread Properties', test: () => { try { eval('({...{}})'); return true; } catch { return false; } } },
+        { name: 'ES2019 Array.flat', test: () => Array.prototype.flat !== undefined },
+        { name: 'ES2020 Optional Chaining', test: () => { try { eval('a?.b'); return true; } catch { return false; } } },
+        { name: 'ES2020 Nullish Coalescing', test: () => { try { eval('a??b'); return true; } catch { return false; } } },
+        { name: 'ES2020 BigInt', test: () => typeof BigInt !== 'undefined' },
+        { name: 'ES2020 globalThis', test: () => typeof globalThis !== 'undefined' },
+        { name: 'ES2021 Logical Assignment', test: () => { try { eval('let a=1;a||=0'); return true; } catch { return false; } } },
+        { name: 'ES2021 Numeric Separators', test: () => { try { eval('1_000'); return true; } catch { return false; } } },
+        { name: 'ES2022 Class Fields', test: () => { try { eval('class A{x=1}'); return true; } catch { return false; } } },
+        { name: 'ES2022 Top-level await', test: () => false }, // 无法在普通脚本中可靠检测
+        { name: 'ES2022 Object.hasOwn', test: () => typeof Object.hasOwn === 'function' },
+        { name: 'ES2023 Array findLast', test: () => typeof Array.prototype.findLast === 'function' },
+        { name: 'ES2024 Array groupBy (提案)', test: () => typeof Object.groupBy === 'function' || typeof Array.prototype.group === 'function' },
+        { name: 'Typed Arrays', test: () => typeof Uint8Array !== 'undefined' },
+        { name: 'ArrayBuffer', test: () => typeof ArrayBuffer !== 'undefined' },
+        { name: 'SharedArrayBuffer', test: () => typeof SharedArrayBuffer !== 'undefined' },
+        { name: 'Atomics', test: () => typeof Atomics !== 'undefined' },
+        { name: 'Intl API', test: () => typeof Intl !== 'undefined' },
+        { name: 'URL / URLSearchParams', test: () => typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined' },
+        { name: 'fetch API', test: () => typeof fetch !== 'undefined' },
+        { name: 'AbortController', test: () => typeof AbortController !== 'undefined' },
+        { name: 'queueMicrotask', test: () => typeof queueMicrotask === 'function' },
+        { name: 'structuredClone', test: () => typeof structuredClone === 'function' },
+      ],
+
+      // Web APIs
+      api: [
+        { name: 'Service Worker', test: () => 'serviceWorker' in navigator },
+        { name: 'Push API', test: () => 'PushManager' in window },
+        { name: 'Notifications', test: () => 'Notification' in window },
+        { name: 'Background Sync', test: () => 'SyncManager' in window },
+        { name: 'Periodic Background Sync', test: () => 'PeriodicSyncManager' in window },
+        { name: 'Web Share API', test: () => 'share' in navigator },
+        { name: 'Web Share Target', test: () => 'share' in navigator }, // 近似
+        { name: 'Clipboard API (async)', test: () => 'clipboard' in navigator },
+        { name: 'Permissions API', test: () => 'permissions' in navigator },
+        { name: 'Credential Management', test: () => 'credentials' in navigator },
+        { name: 'Payment Request', test: () => 'PaymentRequest' in window },
+        { name: 'Intersection Observer', test: () => 'IntersectionObserver' in window },
+        { name: 'Resize Observer', test: () => 'ResizeObserver' in window },
+        { name: 'Mutation Observer', test: () => 'MutationObserver' in window },
+        { name: 'Performance Observer', test: () => 'PerformanceObserver' in window },
+        { name: 'Reporting Observer', test: () => 'ReportingObserver' in window },
+        { name: 'Web Components (Custom Elements)', test: () => 'customElements' in window },
+        { name: 'Shadow DOM', test: () => 'attachShadow' in Element.prototype },
+        { name: 'HTML Templates', test: () => 'content' in document.createElement('template') },
+        { name: 'Slots', test: () => 'HTMLSlotElement' in window },
+        { name: 'Web Animations API', test: () => 'animate' in Element.prototype },
+        { name: 'Web Audio API', test: () => !!(window.AudioContext || window.webkitAudioContext) },
+        { name: 'WebRTC (RTCPeerConnection)', test: () => !!(window.RTCPeerConnection || window.webkitRTCPeerConnection) },
+        { name: 'MediaStream / getUserMedia', test: () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
+        { name: 'MediaRecorder', test: () => typeof MediaRecorder !== 'undefined' },
+        { name: 'WebAssembly', test: () => typeof WebAssembly !== 'undefined' },
+        { name: 'WebGPU (实验)', test: () => 'gpu' in navigator },
+        { name: 'WebCodecs', test: () => 'VideoEncoder' in window },
+        { name: 'WebTransport', test: () => 'WebTransport' in window },
+        { name: 'File System Access', test: () => 'showOpenFilePicker' in window },
+        { name: 'File System Access (目录)', test: () => 'showDirectoryPicker' in window },
+        { name: 'Origin Private File System', test: () => 'storage' in navigator && 'getDirectory' in (navigator.storage || {}) },
+        { name: 'Broadcast Channel', test: () => 'BroadcastChannel' in window },
+        { name: 'Channel Messaging', test: () => 'MessageChannel' in window },
+        { name: 'Idle Detection', test: () => 'IdleDetector' in window },
+        { name: 'Screen Wake Lock', test: () => 'wakeLock' in navigator },
+        { name: 'Device Orientation / Motion', test: () => 'DeviceOrientationEvent' in window },
+        { name: 'Gamepad API', test: () => 'getGamepads' in navigator },
+        { name: 'Pointer Events', test: () => 'PointerEvent' in window },
+        { name: 'Touch Events', test: () => 'ontouchstart' in window },
+        { name: 'Keyboard Lock', test: () => 'keyboard' in navigator && 'lock' in (navigator.keyboard || {}) },
+        { name: 'EyeDropper API', test: () => 'EyeDropper' in window },
+        { name: 'Barcode Detector', test: () => 'BarcodeDetector' in window },
+        { name: 'Shape Detection (Face)', test: () => 'FaceDetector' in window },
+        { name: 'Web Locks API', test: () => 'locks' in navigator },
+        { name: 'Content Indexing', test: () => 'index' in (window.ServiceWorkerRegistration?.prototype || {}) },
+        { name: 'Periodic Sync', test: () => 'periodicSync' in (window.ServiceWorkerRegistration?.prototype || {}) },
+        { name: 'Navigation API', test: () => 'navigation' in window },
+        { name: 'View Transitions', test: () => 'startViewTransition' in document },
+        { name: 'Scroll-driven Animations', test: () => CSS.supports('animation-timeline', 'scroll()') },
+        { name: 'Popover API', test: () => 'popover' in HTMLElement.prototype },
+        { name: 'Invokers (实验)', test: () => 'invokeTargetElement' in HTMLButtonElement.prototype },
+        { name: 'CSS Typed OM', test: () => 'attributeStyleMap' in Element.prototype },
+        { name: 'Constructable Stylesheets', test: () => 'replaceSync' in (CSSStyleSheet.prototype || {}) },
+        { name: 'modulepreload', test: () => {
+          const l = document.createElement('link');
+          return l.relList && l.relList.supports && l.relList.supports('modulepreload');
+        }},
+      ],
+
+      // Storage
+      storage: [
+        { name: 'Cookies', test: () => navigator.cookieEnabled },
+        { name: 'localStorage', test: () => {
+          try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; }
+          catch { return false; }
+        }},
+        { name: 'sessionStorage', test: () => {
+          try { sessionStorage.setItem('__t', '1'); sessionStorage.removeItem('__t'); return true; }
+          catch { return false; }
+        }},
+        { name: 'IndexedDB', test: () => !!window.indexedDB },
+        { name: 'Cache API', test: () => 'caches' in window },
+        { name: 'StorageManager estimate()', test: () => !!(navigator.storage && navigator.storage.estimate) },
+        { name: 'StorageManager persist()', test: () => !!(navigator.storage && navigator.storage.persist) },
+        { name: 'Origin Private File System', test: () => !!(navigator.storage && navigator.storage.getDirectory) },
+        { name: 'Cookie Store API', test: () => 'cookieStore' in window },
+      ],
+
+      // Media
+      media: [
+        { name: 'getUserMedia (摄像头/麦克风)', test: () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
+        { name: 'enumerateDevices', test: () => !!(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) },
+        { name: 'MediaRecorder', test: () => typeof MediaRecorder !== 'undefined' },
+        { name: 'Web Audio API', test: () => !!(window.AudioContext || window.webkitAudioContext) },
+        { name: 'Speech Synthesis', test: () => 'speechSynthesis' in window },
+        { name: 'Speech Recognition', test: () => !!(window.SpeechRecognition || window.webkitSpeechRecognition) },
+        { name: 'Picture-in-Picture', test: () => 'pictureInPictureEnabled' in document },
+        { name: 'Fullscreen API', test: () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled) },
+        { name: 'Screen Capture (getDisplayMedia)', test: () => !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) },
+        { name: 'Media Session API', test: () => 'mediaSession' in navigator },
+        { name: 'HTMLMediaElement.captureStream', test: () => 'captureStream' in HTMLMediaElement.prototype },
+        { name: 'ImageCapture API', test: () => 'ImageCapture' in window },
+        { name: 'WebVTT / TextTrack', test: () => 'TextTrack' in window },
+      ],
+
+      // Security
+      security: [
+        { name: 'Secure Context (HTTPS / localhost)', test: () => window.isSecureContext },
+        { name: 'Cross-Origin Isolated', test: () => window.crossOriginIsolated === true },
+        { name: 'Feature Policy / Permissions Policy', test: () => 'permissions' in navigator || 'featurePolicy' in document },
+        { name: 'Content Security Policy (可检测性)', test: () => true }, // 实际 CSP 需通过 header 判断
+        { name: 'Trusted Types', test: () => 'trustedTypes' in window },
+        { name: 'Sanitizer API', test: () => 'Sanitizer' in window },
+        { name: 'Private Network Access (实验)', test: () => false },
+        { name: 'Reporting API', test: () => 'ReportingObserver' in window },
+        { name: 'Permissions-Policy 支持检测', test: () => 'permissions' in navigator },
+      ],
+    };
+
+    /* ==================== 运行检测 ==================== */
+    const results = {
+      browser: null,
+      display: {},
+      network: {},
+      perf: {},
+      features: {},
+      summary: { total: 0, pass: 0 }
+    };
+
+    function runAllTests() {
+      results.features = {};
+      results.summary = { total: 0, pass: 0 };
+
+      for (const [cat, list] of Object.entries(tests)) {
+        results.features[cat] = list.map(item => {
+          let ok = false;
+          try { ok = !!item.test(); } catch { ok = false; }
+          results.summary.total++;
+          if (ok) results.summary.pass++;
+          return { name: item.name, support: ok };
+        });
+      }
+    }
+
+    function collectInfo() {
+      const b = detectBrowser();
+      results.browser = b;
+
+      // Display
+      results.display = {
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        availWidth: screen.availWidth,
+        availHeight: screen.availHeight,
+        colorDepth: screen.colorDepth,
+        pixelDepth: screen.pixelDepth,
+        devicePixelRatio: window.devicePixelRatio || 1,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        orientation: screen.orientation ? screen.orientation.type : (window.orientation !== undefined ? window.orientation : 'N/A'),
+        hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
+        deviceMemory: navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'N/A',
+        maxTouchPoints: navigator.maxTouchPoints || 0,
+        pdfViewerEnabled: navigator.pdfViewerEnabled,
+        language: navigator.language,
+        languages: (navigator.languages || []).join(', '),
+        cookieEnabled: navigator.cookieEnabled,
+        doNotTrack: navigator.doNotTrack,
+        platform: navigator.platform,
+        vendor: navigator.vendor,
+        product: navigator.product,
+        userAgentData: navigator.userAgentData ? JSON.stringify(navigator.userAgentData.brands || []) : '不支持',
+      };
+
+      // Network
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      results.network = {
+        online: navigator.onLine,
+        effectiveType: conn ? conn.effectiveType : 'N/A',
+        downlink: conn ? conn.downlink + ' Mbps' : 'N/A',
+        rtt: conn ? conn.rtt + ' ms' : 'N/A',
+        saveData: conn ? conn.saveData : 'N/A',
+        type: conn ? conn.type : 'N/A',
+      };
+
+      // Performance
+      const mem = performance.memory;
+      results.perf = {
+        timing: performance.timing ? '支持 (已废弃，建议用 Navigation Timing Level 2)' : '不支持',
+        navigationTiming2: performance.getEntriesByType ? '支持' : '不支持',
+        memoryUsed: mem ? (mem.usedJSHeapSize / 1048576).toFixed(2) + ' MB' : 'N/A',
+        memoryTotal: mem ? (mem.totalJSHeapSize / 1048576).toFixed(2) + ' MB' : 'N/A',
+        memoryLimit: mem ? (mem.jsHeapSizeLimit / 1048576).toFixed(2) + ' MB' : 'N/A',
+        timeOrigin: performance.timeOrigin,
+        now: performance.now().toFixed(2) + ' ms',
+      };
+    }
+
+    /* ==================== 渲染 ==================== */
+    function renderInfo() {
+      const b = results.browser;
+      const d = results.display;
+      const rows = [
+        ['浏览器', `${b.name} ${b.version}`],
+        ['渲染引擎', b.engine],
+        ['操作系统', b.os],
+        ['平台', d.platform],
+        ['厂商', d.vendor || '—'],
+        ['语言', d.language],
+        ['语言列表', d.languages],
+        ['User-Agent', b.ua],
+        ['User-Agent Client Hints', d.userAgentData],
+        ['Cookie 启用', d.cookieEnabled ? '是' : '否'],
+        ['Do Not Track', d.doNotTrack || '未设置'],
+        ['PDF 查看器', d.pdfViewerEnabled ? '是' : '否 / 未知'],
+      ];
+      $('#tbody-info').innerHTML = rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td class="value-mono">${v}</td></tr>`
+      ).join('');
+    }
+
+    function renderDisplay() {
+      const d = results.display;
+      const rows = [
+        ['屏幕分辨率', `${d.screenWidth} × ${d.screenHeight}`],
+        ['可用区域', `${d.availWidth} × ${d.availHeight}`],
+        ['视口大小', `${d.viewportWidth} × ${d.viewportHeight}`],
+        ['设备像素比', d.devicePixelRatio],
+        ['色深', d.colorDepth + ' bit'],
+        ['像素深度', d.pixelDepth + ' bit'],
+        ['屏幕方向', d.orientation],
+        ['CPU 逻辑核心', d.hardwareConcurrency],
+        ['设备内存 (近似)', d.deviceMemory],
+        ['最大触控点数', d.maxTouchPoints],
+      ];
+      $('#tbody-display').innerHTML = rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td class="value-mono">${v}</td></tr>`
+      ).join('');
+    }
+
+    function renderNetwork() {
+      const n = results.network;
+      const rows = [
+        ['在线状态', n.online ? '在线' : '离线'],
+        ['有效网络类型', n.effectiveType],
+        ['下行带宽估算', n.downlink],
+        ['往返时延 (RTT)', n.rtt],
+        ['节省数据模式', n.saveData],
+        ['连接类型', n.type],
+      ];
+      $('#tbody-network').innerHTML = rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td class="value-mono">${v}</td></tr>`
+      ).join('');
+    }
+
+    function renderPerf() {
+      const p = results.perf;
+      const rows = [
+        ['Performance.now()', p.now],
+        ['timeOrigin', p.timeOrigin],
+        ['Navigation Timing', p.timing],
+        ['Navigation Timing Level 2', p.navigationTiming2],
+        ['JS 堆已用', p.memoryUsed],
+        ['JS 堆总量', p.memoryTotal],
+        ['JS 堆限制', p.memoryLimit],
+      ];
+      $('#tbody-perf').innerHTML = rows.map(([k, v]) =>
+        `<tr><td>${k}</td><td class="value-mono">${v}</td></tr>`
+      ).join('');
+    }
+
+    function renderFeatureGrid(cat, containerId) {
+      const list = results.features[cat] || [];
+      const html = list.map(item => `
+        <div class="feature-card">
+          <div>
+            <div class="feature-name">${item.name}</div>
+          </div>
+          ${statusBadge(item.support)}
+        </div>
+      `).join('');
+      $(containerId).innerHTML = html;
+    }
+
+    function updateSummary() {
+      const { total, pass } = results.summary;
+      const rate = total ? Math.round((pass / total) * 100) : 0;
+      $('#score-text').textContent = rate + '%';
+      const circle = $('#score-circle');
+      const circumference = 2 * Math.PI * 34;
+      circle.style.strokeDasharray = circumference;
+      circle.style.strokeDashoffset = circumference - (rate / 100) * circumference;
+      circle.style.stroke = rate >= 80 ? 'var(--success)' : rate >= 50 ? 'var(--warning)' : 'var(--danger)';
+
+      $('#browser-name').textContent = results.browser.name;
+      $('#os-name').textContent = results.browser.os.split(' ')[0];
+      $('#pass-count').textContent = `${pass} / ${total}`;
+      $('#detect-time').textContent = new Date().toLocaleString('zh-CN');
+    }
+
+    function renderAll() {
+      renderInfo();
+      renderDisplay();
+      renderNetwork();
+      renderPerf();
+      renderFeatureGrid('html', '#grid-html');
+      renderFeatureGrid('css', '#grid-css');
+      renderFeatureGrid('js', '#grid-js');
+      renderFeatureGrid('api', '#grid-api');
+      renderFeatureGrid('storage', '#grid-storage');
+      renderFeatureGrid('media', '#grid-media');
+      renderFeatureGrid('security', '#grid-security');
+      updateSummary();
+    }
+
+    /* ==================== 导出 ==================== */
+    function buildReportText() {
+      const b = results.browser;
+      let txt = `现代浏览器测试报告\n`;
+      txt += `检测时间: ${new Date().toLocaleString('zh-CN')}\n`;
+      txt += `浏览器: ${b.name} ${b.version} (${b.engine})\n`;
+      txt += `系统: ${b.os}\n`;
+      txt += `综合支持率: ${Math.round((results.summary.pass / results.summary.total) * 100)}% (${results.summary.pass}/${results.summary.total})\n\n`;
+
+      for (const [cat, list] of Object.entries(results.features)) {
+        txt += `【${cat.toUpperCase()}】\n`;
+        list.forEach(i => {
+          txt += `  ${i.support ? '✓' : '✗'} ${i.name}\n`;
+        });
+        txt += '\n';
+      }
+      return txt;
+    }
+
+    function exportJSON() {
+      const data = {
+        generated: new Date().toISOString(),
+        browser: results.browser,
+        display: results.display,
+        network: results.network,
+        performance: results.perf,
+        summary: results.summary,
+        features: results.features
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `browser-test-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('JSON 已导出');
+    }
+
+    /* ==================== 事件绑定 ==================== */
+    function initEvents() {
+      // Tabs
+      $$('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          $$('.tab').forEach(t => {
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          $$('.section').forEach(s => s.classList.remove('active'));
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+          $(`#sec-${tab.dataset.tab}`).classList.add('active');
+        });
+      });
+
+      // Theme
+      const saved = localStorage.getItem('browser-test-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      $('#btn-theme').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme');
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next === 'dark' ? '' : 'light');
+        localStorage.setItem('browser-test-theme', next === 'dark' ? '' : 'light');
+        $('#btn-theme').textContent = next === 'dark' ? '🌙 主题' : '☀️ 主题';
+      });
+      if (document.documentElement.getAttribute('data-theme') === 'light') {
+        $('#btn-theme').textContent = '☀️ 主题';
+      }
+
+      // Copy
+      $('#btn-copy').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(buildReportText());
+          showToast('报告已复制到剪贴板');
+        } catch {
+          showToast('复制失败，请手动选择');
+        }
+      });
+
+      // Export
+      $('#btn-export').addEventListener('click', exportJSON);
+
+      // Refresh
+      $('#btn-refresh').addEventListener('click', () => {
+        collectInfo();
+        runAllTests();
+        renderAll();
+        showToast('已重新检测');
+      });
+    }
+
+    /* ==================== 启动 ==================== */
+    function init() {
+      collectInfo();
+      runAllTests();
+      renderAll();
+      initEvents();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>
